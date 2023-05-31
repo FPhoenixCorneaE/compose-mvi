@@ -12,6 +12,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "basic-mvi"
+rootProject.name = "compose-mvi"
 include ':app'
-include ':mvi'
+include ':compose-mvi'
