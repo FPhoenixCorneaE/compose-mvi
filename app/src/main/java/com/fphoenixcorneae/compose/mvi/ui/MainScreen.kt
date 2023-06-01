@@ -13,6 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fphoenixcorneae.compose.ext.toast
+import com.fphoenixcorneae.compose.ext.toastCenter
 import com.fphoenixcorneae.compose.https.ApiException
 import com.fphoenixcorneae.compose.mvi.DefaultAction
 import com.fphoenixcorneae.compose.mvi.MainViewModel
@@ -105,6 +107,9 @@ fun MainScreen(
                             Text(
                                 text = data?.getOrNull(3).orEmpty(),
                                 modifier = Modifier.clickable { viewModel.showNoNetwork("网络电波无法到达哟~") })
+                        }
+                        LaunchedEffect(key1 = Unit){
+                            "获取数据成功！".toast()
                         }
                     }
                 }

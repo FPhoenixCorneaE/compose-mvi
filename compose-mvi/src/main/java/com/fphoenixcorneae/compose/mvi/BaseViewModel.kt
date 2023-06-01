@@ -2,9 +2,8 @@ package com.fphoenixcorneae.compose.mvi
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fphoenixcorneae.compose.ext.launch
 import com.fphoenixcorneae.compose.https.ExceptionHandling
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -92,14 +91,6 @@ abstract class BaseViewModel<A> : ViewModel(), IAction<A>, IResult {
     fun showNoNetwork(message: String? = null) {
         launch { effectChannel.send(UiEffect.ShowNoNetwork(message = message)) }
     }
-
-    fun launch(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch { block() }
-
-    fun launchDefault(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch(Dispatchers.Default) { block() }
-
-    fun launchIo(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch(Dispatchers.IO) { block() }
-
-    fun launchMain(block: suspend CoroutineScope.() -> Unit) = viewModelScope.launch(Dispatchers.Main) { block() }
 
     init {
         launch { actionChannel.receiveAsFlow().collect { processIntent(it) } }
