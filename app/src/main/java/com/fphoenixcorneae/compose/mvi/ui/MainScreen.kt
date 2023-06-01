@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fphoenixcorneae.compose.https.ApiException
 import com.fphoenixcorneae.compose.mvi.DefaultAction
 import com.fphoenixcorneae.compose.mvi.MainViewModel
 import com.fphoenixcorneae.compose.mvi.UiEffect
@@ -25,9 +26,9 @@ fun MainScreen(
     viewModel: MainViewModel = viewModel(),
 ) {
     val uiEffect by uiEffect.collectAsState(UiEffect.ShowLoading())
-    DisposableEffect(key1 = Unit){
+    DisposableEffect(key1 = Unit) {
         viewModel.dispatchIntent(DefaultAction.Initialize)
-        onDispose {  }
+        onDispose { }
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -78,7 +79,7 @@ fun MainScreen(
                     is UiEffect.ShowEmpty -> EmptyScreen((uiEffect as UiEffect.ShowEmpty).message) {
                         viewModel.dispatchIntent(DefaultAction.Refresh)
                     }
-                    is UiEffect.ShowError -> ErrorScreen((uiEffect as UiEffect.ShowError).message) {
+                    is UiEffect.ShowError -> ErrorScreen((uiEffect as UiEffect.ShowError).t?.message) {
                         viewModel.dispatchIntent(DefaultAction.Refresh)
                     }
                     is UiEffect.ShowLoading -> LoadingScreen((uiEffect as UiEffect.ShowLoading).message)
@@ -86,7 +87,7 @@ fun MainScreen(
                         viewModel.dispatchIntent(DefaultAction.Refresh)
                     }
                     is UiEffect.ShowContent<*> -> {
-                        val data = (uiEffect as UiEffect.ShowContent<List<String>>).data
+                        val data = (uiEffect as UiEffect.ShowContent<List<String>>).result
                         Column(
                             modifier = Modifier.fillMaxSize(),
                             horizontalAlignment = Alignment.CenterHorizontally,
@@ -97,7 +98,7 @@ fun MainScreen(
                                 modifier = Modifier.clickable { viewModel.showEmpty("暂时还没有数据哦~") })
                             Text(
                                 text = data?.getOrNull(1).orEmpty(),
-                                modifier = Modifier.clickable { viewModel.showError("这是一个美丽的错误！") })
+                                modifier = Modifier.clickable { viewModel.showError(ApiException(404, "这是一个美丽的错误！")) })
                             Text(
                                 text = data?.getOrNull(2).orEmpty(),
                                 modifier = Modifier.clickable { viewModel.showLoading("拼命加载中...") })

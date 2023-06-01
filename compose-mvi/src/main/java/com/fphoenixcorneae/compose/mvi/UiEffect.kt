@@ -6,7 +6,7 @@ package com.fphoenixcorneae.compose.mvi
  */
 sealed interface UiEffect {
     /** 显示内容 */
-    data class ShowContent<out T>(val data: T?) : UiEffect
+    data class ShowContent<out T>(val result: T?) : UiEffect
 
     /** 显示加载中 */
     data class ShowLoading(val message: String? = null) : UiEffect
@@ -15,7 +15,7 @@ sealed interface UiEffect {
     data class ShowEmpty(val message: String?) : UiEffect
 
     /** 显示错误 */
-    data class ShowError(val message: String?) : UiEffect
+    data class ShowError(val t: Throwable?) : UiEffect
 
     /** 显示无网络 */
     data class ShowNoNetwork(val message: String?) : UiEffect

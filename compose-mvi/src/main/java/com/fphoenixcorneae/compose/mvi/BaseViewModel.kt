@@ -2,16 +2,13 @@ package com.fphoenixcorneae.compose.mvi
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.gson.JsonParseException
+import com.fphoenixcorneae.compose.https.ExceptionHandling
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import java.net.ConnectException
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 
 /** 副作用视图 */
 private val effectChannel by lazy { Channel<UiEffect>() }
@@ -30,28 +27,31 @@ abstract class BaseViewModel<A> : ViewModel(), IAction<A>, IResult {
     private val resultChannel = Channel<ActionResult>()
 
     protected fun <T> sendHttpRequest(
-        loadingMsg: String? = null,
-        judgeEmpty: ((T) -> Boolean)? = null,
-        isOk: ((T) -> Boolean)? = null,
         call: suspend () -> T,
+        showLoading: Boolean = true,
+        loadingMsg: String? = null,
+        judgeEmpty: ((T) -> Boolean) = { false },
+        isOk: ((T) -> Boolean) = { false },
+        handleResult: ((T) -> Unit) = { },
     ) = viewModelScope.launch {
         runCatching {
-            showLoading(message = loadingMsg)
+            if (showLoading) {
+                showLoading(message = loadingMsg)
+            }
             call()
         }.onSuccess {
-
+            if (isOk(it)) {
+                if (judgeEmpty(it)) {
+                    dispatchResult(ActionResult.Nothing)
+                } else {
+                    dispatchResult(ActionResult.Success(it))
+                }
+            } else {
+                handleResult(it)
+            }
         }.onFailure {
-            showError(getErrorMessage(it))
+            dispatchResult(ActionResult.Failure(ExceptionHandling.deal(it)))
         }
-    }
-
-    private fun getErrorMessage(t: Throwable) = when (t) {
-        is ConnectException,
-        is UnknownHostException,
-        -> "网络连接失败"
-        is SocketTimeoutException -> "网络连接超时"
-        is JsonParseException -> "数据解析错误"
-        else -> "未知错误"
     }
 
     override fun dispatchIntent(action: A) {
@@ -81,8 +81,8 @@ abstract class BaseViewModel<A> : ViewModel(), IAction<A>, IResult {
         launch { effectChannel.send(UiEffect.ShowLoading(message = message)) }
     }
 
-    fun showError(message: String?) {
-        launch { effectChannel.send(UiEffect.ShowError(message = message)) }
+    fun showError(t: Throwable?) {
+        launch { effectChannel.send(UiEffect.ShowError(t = t)) }
     }
 
     fun showEmpty(message: String? = null) {

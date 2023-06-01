@@ -12,5 +12,5 @@ sealed interface ActionResult {
     object Nothing : ActionResult
 
     /** 失败 */
-    data class Failure(val code: Int, val cause: String?) : ActionResult
+    data class Failure(val cause: Throwable?) : ActionResult
 }

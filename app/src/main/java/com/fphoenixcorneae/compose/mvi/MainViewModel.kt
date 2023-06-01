@@ -1,8 +1,6 @@
 package com.fphoenixcorneae.compose.mvi
 
-import com.fphoenixcorneae.compose.mvi.ActionResult
-import com.fphoenixcorneae.compose.mvi.BaseViewModel
-import com.fphoenixcorneae.compose.mvi.DefaultAction
+import com.fphoenixcorneae.compose.https.ApiException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,7 +30,7 @@ class MainViewModel : BaseViewModel<DefaultAction>() {
                 } else if (Random.nextInt(4) == 2) {
                     dispatchResult(ActionResult.Nothing)
                 } else {
-                    dispatchResult(ActionResult.Failure(500, "服务器错误！"))
+                    dispatchResult(ActionResult.Failure(ApiException(500, "服务器错误！")))
                 }
             }
         }
